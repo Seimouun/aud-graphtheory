@@ -1,7 +1,6 @@
 import cv2
 
-image = cv2.imread("chart.png")
-
+image = cv2.imread("chart.png") 
 image_height = image.shape[0]
 image_width = image.shape[1]
 money_steps = [100000, 1000000, 10000000]
