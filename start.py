@@ -52,7 +52,7 @@ iterate_pixel_money()
 print("75:" + str(get_cash_mula_for_pixel_height(74)) + "$")
 
 
-def getPixelDate(x):
+def getpixeldate(input: dt) -> datetime:
     img = cv2.imread("chart.png")
 
     x, y = 57, 577
@@ -62,7 +62,6 @@ def getPixelDate(x):
     arrayXs = arr.array("i", [0])
     arrayDatesNPixel = []
     startDate = dt(2018, 2, 1)
-
 
     _finalYPoint = 576
 
@@ -78,13 +77,16 @@ def getPixelDate(x):
         x = x + 1
 
     for i in range(0, len(arrayDatesNPixel) - 1):
-        date_1 = arrayDatesNPixel[i][1]
+        (xCord, date_1) = arrayDatesNPixel[i]
         delta = date_1 - startDate
         for i2 in range(0, delta.days):
-            arrayDatesNPixel[i][i2] = date_1
-            date_1 = date_1 + datetime.timedelta(days=1)
-
+            newX = xCord + (xCord / delta.days)
+            date_1 += relativedelta(days=1)
+            arrayDatesNPixel.append([newX, date_1])
     print(arrayDatesNPixel)
     print(arrayXs)
 
-    return arrayDatesNPixel
+    for i in range(0, len(arrayDatesNPixel) - 1):
+        (cord, datum) = arrayDatesNPixel[i]
+        if input.__eq__(datum):
+            return cord
