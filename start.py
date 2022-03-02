@@ -55,32 +55,30 @@ print("75:" + str(get_cash_mula_for_pixel_height(74)) + "$")
 
 
 def getpixeldate(input: dt) -> datetime:
-    img = cv2.imread("chart.png")
-
-    x, y = 96, 647
+    x, y = 96, 648
     found = True
     B, G, R = 255, 255, 255
 
     arrayXs = arr.array("i", [0])
     arrayDatesNPixel = []
-    startDate = dt(2018, 2, 1)
+    startDate = dt(2018, 1, 1)
 
     while found:
         if x >= 1252:
             break
-        b, g, r = (img[y][x])
+        b, g, r = (image[y][x])
         print(f"{x},{y}")
         if [b, g, r] != [B, G, R]:
             arrayXs.append(x)
-            startDate += relativedelta(months=1)
+            startDate += relativedelta(months=3)
             arrayDatesNPixel.append([x, startDate])
         x = x + 1
-
+    newX = 0
     for i in range(0, len(arrayDatesNPixel) - 1):
         (xCord, date_1) = arrayDatesNPixel[i]
         delta = date_1 - startDate
         for i2 in range(0, delta.days):
-            newX = xCord + (xCord / delta.days)
+            newX = newX + (xCord / delta.days)
             date_1 += relativedelta(days=1)
             arrayDatesNPixel.append([newX, date_1])
     print(arrayDatesNPixel)
