@@ -54,7 +54,7 @@ iterate_pixel_money()
 print("75:" + str(get_cash_mula_for_pixel_height(74)) + "$")
 
 
-def getpixeldate(input: dt) -> datetime:
+def getpixeldate(input: int) -> datetime:
     x, y = 96, 648
     found = True
     B, G, R = 255, 255, 255
@@ -87,4 +87,4 @@ def getpixeldate(input: dt) -> datetime:
     for i in range(0, len(arrayDatesNPixel) - 1):
         (cord, datum) = arrayDatesNPixel[i]
         if input.__eq__(cord):
-            return cord
+            return datum
