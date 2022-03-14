@@ -99,5 +99,15 @@ def getpixeldate(input: float) -> datetime:
         if input is cord:
             return datum
 
+def toCsv(num1, num2):      
+    data = [num1, num2]
+
+    with open('data.csv', 'w', encoding='UTF8') as f:
+        writer = csv.writer(f, delimiter=";")
+        writer.writerow(data)
+        f.close()
+
+#Test 1 Methoden-Aufruf
+toCsv(datetime.datetime(2020, 5, 17).strftime('%d.%m.%Y %H:%M'), 2345.408)
 
 print(getpixeldate(124))
