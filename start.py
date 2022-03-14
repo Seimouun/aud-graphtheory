@@ -109,3 +109,5 @@ def toCsv(num1, num2):
         f.close()
 
 #Test 1 Methoden-Aufruf
+
+toCsv(datetime.datetime(2020, 5, 17).strftime('%d.%m.%Y %H:%M'), 2345.408)
