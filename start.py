@@ -2,10 +2,12 @@ import datetime
 import csv
 
 import cv2
+import os
 import array as arr
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta
 
+os.remove("data.csv")
 image = cv2.imread("images/chart1.png")
 image_height = image.shape[0]
 image_width = image.shape[1]
@@ -102,12 +104,47 @@ def getpixeldate(input: float) -> datetime:
 
 def toCsv(num1, num2):      
     data = [num1, num2]
+    
 
-    with open('data.csv', 'w', encoding='UTF8') as f:
+    with open('data.csv', 'a', encoding='UTF8', newline="") as f:
         writer = csv.writer(f, delimiter=";")
         writer.writerow(data)
         f.close()
 
-#Test 1 Methoden-Aufruf
+def find_blue_pixels():
+    x_start, x_end = 103, 1252
+    y_start, y_end = 95, 646
+    B_Min, G_Min, R_Min = 200, 100, 50
+    B_Max, G_Max, R_Max = 210, 110, 60
+    image_for_blues = image.copy()
+    
+    for x in range(x_start, x_end):
+        for y in range(y_start, y_end):
+            #declare pixels of potential data-point
+            b, g, r = image_for_blues[y][x]
+            b1, g1, r1 = image_for_blues[y - 1][x + 1]
+            b2, g2, r2 = image_for_blues[y][x + 1]
+            b3, g3, r3 = image_for_blues[y + 1][x + 1]
+            b4, g4, r4 = image_for_blues[y][x + 2]
 
+            #check if bgr-value of pixels is in-between color-range
+            if ([B_Min, G_Min, R_Min] <= [b, g, r] <=  [B_Max, G_Max, R_Max] and
+                [B_Min, G_Min, R_Min] <= [b1, g1, r1] <=  [B_Max, G_Max, R_Max] and
+                [B_Min, G_Min, R_Min] <= [b2, g2, r2] <=  [B_Max, G_Max, R_Max] and
+                [B_Min, G_Min, R_Min] <= [b3, g3, r3] <=  [B_Max, G_Max, R_Max] and
+                [B_Min, G_Min, R_Min] <= [b4, g4, r4] <=  [B_Max, G_Max, R_Max]):
+
+                #get_cash_mula_for_pixel_height() goes from bottom up with the lowest value being at index 0
+                #find_blue_pixels() starts from the top with the startpoint being 95, so subtract y
+                toCsv(getpixeldate(x + 1), get_cash_mula_for_pixel_height(y_end - y))
+                
+                #color the used pixels of a data-point white since they've already been handled
+                image_for_blues[y][x] = [255, 255, 255]
+                image_for_blues[y - 1][x + 1] = [255, 255, 255]
+                image_for_blues[y][x + 1] = [255, 255, 255]
+                image_for_blues[y + 1][x + 1] = [255, 255, 255]
+                image_for_blues[y][x + 2] = [255, 255, 255]
+
+#Test Methoden-Aufruf
 toCsv(datetime.datetime(2020, 5, 17).strftime('%d.%m.%Y %H:%M'), 2345.408)
+find_blue_pixels()
