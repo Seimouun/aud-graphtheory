@@ -66,6 +66,8 @@ def getpixeldate(input: float) -> datetime:
 
     arrayXs = arr.array("i", [0])
     arrayDatesNPixel = []
+    arrayDatesNPixel_res = []
+    arrayDeltaDays = []
     startDate = dt(2017, 12, 31)
     finalDate = dt(2017, 12, 31)
 
@@ -79,28 +81,49 @@ def getpixeldate(input: float) -> datetime:
             startDate += relativedelta(months=3)
             arrayDatesNPixel.append([x, startDate])
         x = x + 1
-    newX = 0
-    counter = 1
-    for i in range(0, len(arrayDatesNPixel)):
-        (xCord, date_1) = arrayDatesNPixel[i]
-        delta = date_1 - finalDate
-        finalDate = date_1
-        print(delta)
-        for i2 in range(0, delta.days):
-            newX = newX + (xCord / delta.days)
-            date_1 += relativedelta(days=1)
-            arrayDatesNPixel.insert(counter, [newX, date_1])
-            counter += 1
-    print(arrayXs)
+
+
     print(arrayDatesNPixel)
+    for i in range(0, len(arrayDatesNPixel)):
+        (dummy, date_1) = arrayDatesNPixel[i]
+        delta = date_1 - finalDate
+        print(f"i: {i}  Date 1: {date_1}  Final_Date: {finalDate}")
+        finalDate = date_1
+        arrayDeltaDays.insert(i, delta)
+    print(arrayXs)
+
+    counterX = 102
+    newX = 0
+    perDay = 0
+    counter = 0
+    for i in range(0, len(arrayDeltaDays)):
+        delta = arrayDeltaDays[i]
+        xCord = arrayXs[i + 1]
+        counterX = xCord - counterX
+        newX = xCord
+        (dummy, date_1) = arrayDatesNPixel[i]
+        for i2 in range(0, delta.days):
+            print(counterX)
+            perDay = (counterX / delta.days)
+            newX = newX + perDay
+            print(newX)
+            date_1 += relativedelta(days=1)
+            arrayDatesNPixel_res.insert(counter, [int(newX), date_1])
+            counter += 1
+            date_1 += relativedelta(days=1)
+            arrayDatesNPixel_res.insert(counter, [round(newX), date_1])
+            counter += 1
+        counterX = xCord
 
 
-    for i in range(0, len(arrayDatesNPixel) - 1):
-        (cord, datum) = arrayDatesNPixel[i]
-        if input is cord:
+    for i in range(0, len(arrayDatesNPixel_res)):
+        (cord, datum) = arrayDatesNPixel_res[i]
+        if input == cord:
             return datum
 
-def toCsv(num1, num2):      
+print(getpixeldate(226.0))
+
+def toCsv(num1, num2):
     data = [num1, num2]
 
     with open('data.csv', 'w', encoding='UTF8') as f:
@@ -108,6 +131,4 @@ def toCsv(num1, num2):
         writer.writerow(data)
         f.close()
 
-#Test 1 Methoden-Aufruf
-
-toCsv(datetime.datetime(2020, 5, 17).strftime('%d.%m.%Y %H:%M'), 2345.408)
+# toCsv(datetime.datetime(2020, 5, 17).strftime('%d.%m.%Y %H:%M'), 2345.408)
