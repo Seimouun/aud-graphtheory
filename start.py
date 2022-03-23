@@ -2,10 +2,12 @@ import datetime
 import csv
 
 import cv2
+import os
 import array as arr
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta
 
+os.remove("data.csv")
 image = cv2.imread("images/chart1.png")
 image_height = image.shape[0]
 image_width = image.shape[1]
@@ -125,8 +127,9 @@ print(getpixeldate(226.0))
 
 def toCsv(num1, num2):
     data = [num1, num2]
+    
 
-    with open('data.csv', 'w', encoding='UTF8') as f:
+    with open('data.csv', 'a', encoding='UTF8', newline="") as f:
         writer = csv.writer(f, delimiter=";")
         writer.writerow(data)
         f.close()
@@ -168,4 +171,5 @@ def find_blue_pixels():
 #Test Methoden-Aufruf
 toCsv(datetime.datetime(2020, 5, 17).strftime('%d.%m.%Y %H:%M'), 2345.408)
 find_blue_pixels()
+
 
