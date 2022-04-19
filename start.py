@@ -1,4 +1,5 @@
 import datetime
+import math
 import csv
 
 import cv2
@@ -11,41 +12,71 @@ os.remove("data.csv")
 image = cv2.imread("images/chart1.png")
 image_height = image.shape[0]
 image_width = image.shape[1]
-money_steps = [100000, 1000000, 10000000]
 
 pixel_money = []
 
 
 def is_line(pixel_color):
     return pixel_color < 254
+#checks if a line has a number and how much 0's the given number has
+def get_zeros(width, height):
+    count = 0
+    x = width
+    zeros = 0
+    while count < 10:
+        if(image[height, x][2] < 250 & image[height, x - 4][2] < 250):
+            zeros += 1
+            x -= 4
+            count = 5
+        x-=1
+        count+=1
 
+    return zeros
+#checks between 2 endlines what each pixel is "worth"
+#   returns: height of the first endline,
+#            how many 0's the first line has,
+#            the "worth" of each pixel between those lines
+def gen_pixel_height(start, end):
+    first_value = -1
+    first_value_height = -1
+
+    pixel_count = 0
+
+    line_start = start
+    line_end = end
+
+    for y in range(0, line_end - line_start):
+        height = line_end - y
+        # find line
+        if(is_line(image[height, 114][2])):
+            zeros_count = get_zeros(114, height)
+            # check if line has number & first_value not set yet
+            if(zeros_count > 0):
+                # find first line
+                if(first_value < 0):
+                    first_value = zeros_count
+                    first_value_height = height
+                # if first line already there get second one and do the math thingy
+                elif(first_value > 0):
+                    zeros_diff = zeros_count - first_value
+                    return first_value, first_value_height, zeros_diff / pixel_count
+                pixel_count = 0
+        pixel_count += 1
 
 def iterate_pixel_money():
-    pixel_count = 0
-    section = 0
-    sub_section = 8
-    section_amount = [100000, 100000, 1000000, 10000000]
+    start_value, start_height, pixel_height = gen_pixel_height(95, 647)
 
     line_start = 95
     line_end = 647
     for y in range(0, line_end - line_start):
         height = line_end - y
-        if (is_line(image[height, 114][2])):
-            for ___i in range(0, pixel_count):
-                prev_index_money = 0
-                try:
-                    prev_index_money = pixel_money[pixel_money.__len__() - 1]
-                except:
-                    pass
-                pixel_money.append(prev_index_money + section_amount[section] / pixel_count)
-
-            pixel_count = 0
-            sub_section += 1
-            if (sub_section % 9 == 0):
-                sub_section = 0
-                section += 1
-        else:
-            pixel_count += 1
+        relative_to_start = start_height - height
+        # 10^5 = 100 000
+        # 10^6 = 1 000 000
+        # iterate between 5 and 6 with pixel_height
+        # relative_to_start respects that start_height isn't always the first pixel on the graphs y axis
+        money_to_append = math.pow(10, start_value + pixel_height*relative_to_start)
+        pixel_money.append(money_to_append)
 
 
 def get_cash_mula_for_pixel_height(hight_key):
