@@ -15,9 +15,10 @@ image_width = image.shape[1]
 
 pixel_money = []
 
-graph_start_x_left = 114
-graph_start_y_bottom = 95
-graph_height = 552
+graph_start_x_left = 101
+graph_start_y_bottom = 94
+graph_height = 554
+graph_width = 1149
 
 def is_line(pixel_color):
     return pixel_color < 254
@@ -163,8 +164,8 @@ def toCsv(num1, num2):
         f.close()
         
 def find_blue_pixels():
-    x_start, x_end = 103, 1252
-    y_start, y_end = 95, 646
+    x_start, x_end = graph_start_x_left, graph_width + graph_start_x_left
+    y_start, y_end = graph_start_y_bottom, graph_height + graph_start_y_bottom
     B_Min, G_Min, R_Min = 200, 100, 50
     B_Max, G_Max, R_Max = 210, 110, 60
     image_for_blues = image.copy()
@@ -186,7 +187,7 @@ def find_blue_pixels():
                 [B_Min, G_Min, R_Min] <= [b4, g4, r4] <=  [B_Max, G_Max, R_Max]):
 
                 #get_cash_mula_for_pixel_height() goes from bottom up with the lowest value being at index 0
-                #find_blue_pixels() starts from the top with the startpoint being 95, so subtract y
+                #find_blue_pixels() starts from the top, so subtract y
                 toCsv(getpixeldate(x + 1), get_cash_mula_for_pixel_height(y_end - y))
                 
                 #color the used pixels of a data-point white since they've already been handled
