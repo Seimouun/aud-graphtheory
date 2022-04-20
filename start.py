@@ -15,6 +15,9 @@ image_width = image.shape[1]
 
 pixel_money = []
 
+graph_start_x_left = 114
+graph_start_y_bottom = 95
+graph_height = 552
 
 def is_line(pixel_color):
     return pixel_color < 254
@@ -48,8 +51,8 @@ def gen_pixel_height(start, end):
     for y in range(0, line_end - line_start):
         height = line_end - y
         # find line
-        if(is_line(image[height, 114][2])):
-            zeros_count = get_zeros(114, height)
+        if(is_line(image[height, graph_start_x_left][2])):
+            zeros_count = get_zeros(graph_start_x_left, height)
             # check if line has number & first_value not set yet
             if(zeros_count > 0):
                 # find first line
@@ -64,10 +67,11 @@ def gen_pixel_height(start, end):
         pixel_count += 1
 
 def iterate_pixel_money():
-    start_value, start_height, pixel_height = gen_pixel_height(95, 647)
+    line_start = graph_start_y_bottom
+    line_end = graph_start_y_bottom + graph_height
 
-    line_start = 95
-    line_end = 647
+    start_value, start_height, pixel_height = gen_pixel_height(line_start, line_end)
+
     for y in range(0, line_end - line_start):
         height = line_end - y
         relative_to_start = start_height - height
@@ -89,7 +93,7 @@ iterate_pixel_money()
 # use get_cash_mula_for_pixel_height(74) returns 100000.0 rounded to 2 decimals
 # money indexes go from 0 to 551
 # height of the pixel relative to the baseline of the graph is the respected money for that pixel
-print("75:" + str(get_cash_mula_for_pixel_height(74)) + "$")
+print("74:" + str(get_cash_mula_for_pixel_height(74)) + "$")
 
 
 def getpixeldate(input: float) -> datetime:
@@ -108,7 +112,6 @@ def getpixeldate(input: float) -> datetime:
         if x >= 1252:
             break
         b, g, r = (image[y][x])
-        print(f"{x},{y}")
         if [b, g, r] != [B, G, R]:
             arrayXs.append(x)
             startDate += relativedelta(months=3)
@@ -116,14 +119,11 @@ def getpixeldate(input: float) -> datetime:
         x = x + 1
 
 
-    print(arrayDatesNPixel)
     for i in range(0, len(arrayDatesNPixel)):
         (dummy, date_1) = arrayDatesNPixel[i]
         delta = date_1 - finalDate
-        print(f"i: {i}  Date 1: {date_1}  Final_Date: {finalDate}")
         finalDate = date_1
         arrayDeltaDays.insert(i, delta)
-    print(arrayXs)
 
     counterX = 102
     newX = 0
@@ -136,10 +136,8 @@ def getpixeldate(input: float) -> datetime:
         newX = xCord
         (dummy, date_1) = arrayDatesNPixel[i]
         for i2 in range(0, delta.days):
-            print(counterX)
             perDay = (counterX / delta.days)
             newX = newX + perDay
-            print(newX)
             date_1 += relativedelta(days=1)
             arrayDatesNPixel_res.insert(counter, [int(newX), date_1])
             counter += 1
@@ -154,7 +152,6 @@ def getpixeldate(input: float) -> datetime:
         if input == cord:
             return datum
 
-print(getpixeldate(226.0))
 
 def toCsv(num1, num2):
     data = [num1, num2]
