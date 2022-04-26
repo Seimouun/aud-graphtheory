@@ -1,3 +1,4 @@
+from asyncio.windows_events import NULL
 import datetime
 import math
 import csv
@@ -157,10 +158,6 @@ def iterate_pixel_money():
 def get_cash_mula_for_pixel_height(hight_key):
     return round(pixel_money[hight_key],2)
 
-iterate_pixel_money()
-
-print("264:" + str(get_cash_mula_for_pixel_height(264)) + "$")
-
 
 def getpixeldate():
     x, y = (graph_start_x_left + 1), (graph_start_y_bottom + 1)
@@ -169,7 +166,6 @@ def getpixeldate():
 
     arrayXs = arr.array("i", [0])
     arrayDatesNPixel = []
-    arrayDatesNPixel_res = []
     arrayDeltaDays = []
     startDate = dt(2017, 12, 31)
     finalDate = dt(2017, 12, 31)
@@ -191,7 +187,7 @@ def getpixeldate():
         finalDate = date_1
         arrayDeltaDays.insert(i, delta)
 
-    counterX = 102
+    counterX = graph_start_x_left + 1
     newX = 0
     perDay = 0
     counter = 0
@@ -211,6 +207,12 @@ def getpixeldate():
             arrayDatesNPixel_res.insert(counter, [round(newX), date_1])
             counter += 1
         counterX = xCord
+
+
+iterate_pixel_money()
+getpixeldate()
+
+print("264:" + str(get_cash_mula_for_pixel_height(264)) + "$")
 
 
 # Just Call if getpixeldate was already called
@@ -255,7 +257,10 @@ def find_blue_pixels():
 
                 #get_cash_mula_for_pixel_height() goes from bottom up with the lowest value being at index 0
                 #find_blue_pixels() starts from the top, so subtract y
-                toCsv(getpixeldate(x + 1), get_cash_mula_for_pixel_height(y_end - y))
+                pixel_date = getDateForPixel(x + 1)
+                if(pixel_date is None):
+                    print(x)
+                toCsv(pixel_date, get_cash_mula_for_pixel_height(y_end - y))
                 
                 #color the used pixels of a data-point white since they've already been handled
                 image_for_blues[y][x] = [255, 255, 255]
