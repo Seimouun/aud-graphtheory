@@ -1,7 +1,7 @@
-from asyncio.windows_events import NULL
 import datetime
 import math
 import csv
+from xmlrpc.client import DateTime
 
 import cv2
 import os
@@ -220,7 +220,7 @@ def getDateForPixel(input: float) -> datetime:
     for i in range(0, len(arrayDatesNPixel_res)):
         (cord, datum) = arrayDatesNPixel_res[i]
         if input == cord:
-            return datum
+            return datum.strftime("%d.%m.%Y, %H:%M")
 
 
 def toCsv(num1, num2):
@@ -259,8 +259,9 @@ def find_blue_pixels():
                 #find_blue_pixels() starts from the top, so subtract y
                 pixel_date = getDateForPixel(x + 1)
                 if(pixel_date is None):
-                    print(x)
-                toCsv(pixel_date, get_cash_mula_for_pixel_height(y_end - y))
+                    print("!!!   missing date (ignoring): x-" + str(x))
+                else:
+                    toCsv(pixel_date, get_cash_mula_for_pixel_height(y_end - y))
                 
                 #color the used pixels of a data-point white since they've already been handled
                 image_for_blues[y][x] = [255, 255, 255]
