@@ -9,26 +9,84 @@ from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta
 
 os.remove("data.csv")
-image = cv2.imread("images/chart1.png")
+image = cv2.imread("chart1.png")
 image_height = image.shape[0]
 image_width = image.shape[1]
-
-pixel_money = []
 
 graph_start_x_left = 101
 graph_start_y_bottom = 94
 graph_height = 554
 graph_width = 1149
 
+pixel_money = []
+
 def is_line(pixel_color):
     return pixel_color < 254
+
+def is_graph_line_horizontal(x,y):
+    for yDown in range(0, 30):
+        #print(x)
+        if(y+yDown < image_height and image[y + yDown,x][2] < 210):
+            continue;
+        else:
+            return False
+    return True
+
+def is_graph_line_vertical(y,x):
+    for xRight in range(0, 30):
+        if(x+xRight < image_width and image[y,x + xRight][2] < 210):
+            continue;
+        else:
+            return False
+    return True
+
+def set_graph_dimensions():
+    global graph_height
+    global graph_width
+    global graph_start_x_left
+    global graph_start_y_bottom
+
+    for x in range(0, image_width):
+        for y in range(0, image_height):
+            if(is_line(image[y,x][2]) and is_graph_line_horizontal(y,x)):
+                graph_start_x_left = x
+                break
+        else:
+            continue
+        break
+    for y in range(0, image_height):
+        if(is_line(image[y,graph_start_x_left][2]) and is_graph_line_vertical(y,graph_start_x_left)):
+            
+            graph_start_y_bottom = y
+            break
+    size_x_temp = 0
+    for x in range(graph_start_x_left, image_width):
+        if image[graph_start_y_bottom,x][2] < 210:
+            size_x_temp += 1
+        else:
+            break
+    
+    graph_width = size_x_temp
+    size_y_temp = 0
+    for y in range(0, graph_start_y_bottom):
+        actual_y = graph_start_y_bottom - y
+        if image[actual_y,graph_start_x_left][2] < 210:
+            size_y_temp += 1
+        else:
+            break
+    
+    graph_height = size_y_temp
+
+                
+
 #checks if a line has a number and how much 0's the given number has
 def get_zeros(width, height):
     count = 0
     x = width
     zeros = 0
-    while count < 10:
-        if(image[height, x][2] < 250 & image[height, x - 4][2] < 250):
+    while count < 13:
+        if(image[height, x][2] < 250 and image[height, x - 4][2] < 250):
+            image[height, x] = [0,0,255]
             zeros += 1
             x -= 4
             count = 5
@@ -36,6 +94,7 @@ def get_zeros(width, height):
         count+=1
 
     return zeros
+
 #checks between 2 endlines what each pixel is "worth"
 #   returns: height of the first endline,
 #            how many 0's the first line has,
@@ -46,14 +105,14 @@ def gen_pixel_height(start, end):
 
     pixel_count = 0
 
-    line_start = start
-    line_end = end
+    pos_x = graph_start_x_left - 1
 
-    for y in range(0, line_end - line_start):
-        height = line_end - y
+    for y in range(0, end - start):
+        height = end - y
         # find line
-        if(is_line(image[height, graph_start_x_left][2])):
-            zeros_count = get_zeros(graph_start_x_left, height)
+        if(is_line(image[height, pos_x][2])):
+            zeros_count = get_zeros(pos_x, height)
+            image[height, pos_x] = [255,0,0]
             # check if line has number & first_value not set yet
             if(zeros_count > 0):
                 # find first line
@@ -63,18 +122,27 @@ def gen_pixel_height(start, end):
                 # if first line already there get second one and do the math thingy
                 elif(first_value > 0):
                     zeros_diff = zeros_count - first_value
+                    print(first_value)
                     return first_value, first_value_height, zeros_diff / pixel_count
                 pixel_count = 0
         pixel_count += 1
 
 def iterate_pixel_money():
-    line_start = graph_start_y_bottom
-    line_end = graph_start_y_bottom + graph_height
+    set_graph_dimensions()
+    print('gr_width: ' + str(graph_width))
+    print('gr_height: ' + str(graph_height))
+    print('gr_start_x: ' + str(graph_start_x_left))
+    print('gr_start_y: ' + str(graph_start_y_bottom))
+    start_value, start_height, pixel_height = gen_pixel_height(graph_start_y_bottom - graph_height, graph_start_y_bottom)
 
-    start_value, start_height, pixel_height = gen_pixel_height(line_start, line_end)
+    #print(pixel_height)
 
-    for y in range(0, line_end - line_start):
-        height = line_end - y
+    #cv2.imshow('ImageWindow', image)
+    #cv2.waitKey(0)
+    #cv2.destroyAllWindows()
+
+    for y in range(0, graph_height):
+        height = graph_start_y_bottom - y
         relative_to_start = start_height - height
         # 10^5 = 100 000
         # 10^6 = 1 000 000
@@ -83,18 +151,12 @@ def iterate_pixel_money():
         money_to_append = math.pow(10, start_value + pixel_height*relative_to_start)
         pixel_money.append(money_to_append)
 
-
 def get_cash_mula_for_pixel_height(hight_key):
-    return round(pixel_money[hight_key], 2)
-
+    return round(pixel_money[hight_key],2)
 
 iterate_pixel_money()
 
-# example:
-# use get_cash_mula_for_pixel_height(74) returns 100000.0 rounded to 2 decimals
-# money indexes go from 0 to 551
-# height of the pixel relative to the baseline of the graph is the respected money for that pixel
-print("74:" + str(get_cash_mula_for_pixel_height(74)) + "$")
+print("264:" + str(get_cash_mula_for_pixel_height(264)) + "$")
 
 
 def getpixeldate(input: float) -> datetime:
