@@ -160,7 +160,7 @@ print("264:" + str(get_cash_mula_for_pixel_height(264)) + "$")
 
 
 def getpixeldate(input: float) -> datetime:
-    x, y = 102, 649
+    x, y = (graph_start_x_left + 1), (graph_start_y_bottom + graph_height + 1)
     found = True
     B, G, R = 255, 255, 255
 
@@ -172,7 +172,7 @@ def getpixeldate(input: float) -> datetime:
     finalDate = dt(2017, 12, 31)
 
     while found:
-        if x >= 1252:
+        if x >= graph_width:
             break
         b, g, r = (image[y][x])
         if [b, g, r] != [B, G, R]:
