@@ -273,5 +273,3 @@ def find_blue_pixels():
 #Test Methoden-Aufruf
 toCsv(datetime.datetime(2020, 5, 17).strftime('%d.%m.%Y %H:%M'), 2345.408)
 find_blue_pixels()
-
-
