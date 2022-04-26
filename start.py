@@ -160,7 +160,7 @@ print("264:" + str(get_cash_mula_for_pixel_height(264)) + "$")
 
 
 def getpixeldate(input: float) -> datetime:
-    x, y = (graph_start_x_left + 1), graph_start_y_bottom
+    x, y = (graph_start_x_left + 1), (graph_start_y_bottom + 1)
     found = True
     B, G, R = 255, 255, 255
 
