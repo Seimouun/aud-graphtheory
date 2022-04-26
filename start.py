@@ -1,3 +1,4 @@
+from asyncio.windows_events import NULL
 import datetime
 import math
 import csv
@@ -8,15 +9,17 @@ import array as arr
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta
 
-os.remove("data.csv")
-image = cv2.imread("chart1.png")
+if(os.path.exists("data.csv")):
+    os.remove("data.csv")
+
+image = cv2.imread("images/chart1.png")
 image_height = image.shape[0]
 image_width = image.shape[1]
 
-graph_start_x_left = 101
-graph_start_y_bottom = 94
-graph_height = 554
-graph_width = 1149
+graph_start_x_left = -1
+graph_start_y_bottom = -1
+graph_height = -1
+graph_width = -1
 
 arrayDatesNPixel_res = []
 pixel_money = []
@@ -60,7 +63,7 @@ def set_graph_dimensions():
             
             graph_start_y_bottom = y
             break
-    size_x_temp = 0
+    size_x_temp = -1
     for x in range(graph_start_x_left, image_width):
         if image[graph_start_y_bottom,x][2] < 210:
             size_x_temp += 1
@@ -68,7 +71,7 @@ def set_graph_dimensions():
             break
     
     graph_width = size_x_temp
-    size_y_temp = 0
+    size_y_temp = -1
     for y in range(0, graph_start_y_bottom):
         actual_y = graph_start_y_bottom - y
         if image[actual_y,graph_start_x_left][2] < 210:
@@ -155,10 +158,6 @@ def iterate_pixel_money():
 def get_cash_mula_for_pixel_height(hight_key):
     return round(pixel_money[hight_key],2)
 
-iterate_pixel_money()
-
-print("264:" + str(get_cash_mula_for_pixel_height(264)) + "$")
-
 
 def getpixeldate():
     x, y = (graph_start_x_left + 1), (graph_start_y_bottom + 1)
@@ -167,13 +166,12 @@ def getpixeldate():
 
     arrayXs = arr.array("i", [0])
     arrayDatesNPixel = []
-    arrayDatesNPixel_res = []
     arrayDeltaDays = []
     startDate = dt(2017, 12, 31)
     finalDate = dt(2017, 12, 31)
 
     while found:
-        if x >= graph_width:
+        if x > graph_width:
             break
         b, g, r = (image[y][x])
         if [b, g, r] != [B, G, R]:
@@ -189,7 +187,7 @@ def getpixeldate():
         finalDate = date_1
         arrayDeltaDays.insert(i, delta)
 
-    counterX = (graph_start_x_left + 1)
+    counterX = graph_start_x_left + 1
     newX = 0
     perDay = 0
     counter = 0
@@ -210,6 +208,13 @@ def getpixeldate():
             counter += 1
         counterX = xCord
 
+
+iterate_pixel_money()
+getpixeldate()
+
+print("264:" + str(get_cash_mula_for_pixel_height(264)) + "$")
+
+
 # Just Call if getpixeldate was already called
 def getDateForPixel(input: float) -> datetime:
     for i in range(0, len(arrayDatesNPixel_res)):
@@ -228,13 +233,14 @@ def toCsv(num1, num2):
         
 def find_blue_pixels():
     x_start, x_end = graph_start_x_left, graph_width + graph_start_x_left
-    y_start, y_end = graph_start_y_bottom, graph_height + graph_start_y_bottom
+    y_start, y_end = graph_start_y_bottom - graph_height, graph_start_y_bottom
     B_Min, G_Min, R_Min = 200, 100, 50
     B_Max, G_Max, R_Max = 210, 110, 60
     image_for_blues = image.copy()
     
     for x in range(x_start, x_end):
-        for y in range(y_start, y_end):
+        for y_temp in range(y_start, y_end):
+            y = y_end - y_temp
             #declare pixels of potential data-point
             b, g, r = image_for_blues[y][x]
             b1, g1, r1 = image_for_blues[y - 1][x + 1]
@@ -251,7 +257,10 @@ def find_blue_pixels():
 
                 #get_cash_mula_for_pixel_height() goes from bottom up with the lowest value being at index 0
                 #find_blue_pixels() starts from the top, so subtract y
-                toCsv(getpixeldate(x + 1), get_cash_mula_for_pixel_height(y_end - y))
+                pixel_date = getDateForPixel(x + 1)
+                if(pixel_date is None):
+                    print(x)
+                toCsv(pixel_date, get_cash_mula_for_pixel_height(y_end - y))
                 
                 #color the used pixels of a data-point white since they've already been handled
                 image_for_blues[y][x] = [255, 255, 255]
