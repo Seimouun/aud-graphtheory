@@ -221,7 +221,6 @@ def getDateForPixel(input: float) -> datetime:
 
 def toCsv(num1, num2):
     data = [num1, num2]
-    
 
     with open('data.csv', 'a', encoding='UTF8', newline="") as f:
         writer = csv.writer(f, delimiter=";")
