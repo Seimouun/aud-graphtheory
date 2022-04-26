@@ -1,4 +1,3 @@
-from asyncio.windows_events import NULL
 import datetime
 import math
 import csv
@@ -167,8 +166,11 @@ def getpixeldate():
     arrayXs = arr.array("i", [0])
     arrayDatesNPixel = []
     arrayDeltaDays = []
-    startDate = dt(2017, 12, 31)
-    finalDate = dt(2017, 12, 31)
+    startDate = dt(2017, 12, 1)
+    finalDate = dt(2018, 1, 1)
+
+    arrayDatesNPixel.append([x, startDate])
+    arrayXs.append(x)
 
     while found:
         if x > graph_width:
@@ -187,13 +189,14 @@ def getpixeldate():
         finalDate = date_1
         arrayDeltaDays.insert(i, delta)
 
+    print(arrayXs)
     counterX = graph_start_x_left + 1
     newX = 0
     perDay = 0
     counter = 0
     for i in range(0, len(arrayDeltaDays)):
         delta = arrayDeltaDays[i]
-        xCord = arrayXs[i + 1]
+        xCord = arrayXs[i]
         counterX = xCord - counterX
         newX = xCord
         (dummy, date_1) = arrayDatesNPixel[i]
@@ -209,8 +212,10 @@ def getpixeldate():
         counterX = xCord
 
 
+
 iterate_pixel_money()
 getpixeldate()
+print(arrayDatesNPixel_res)
 
 print("264:" + str(get_cash_mula_for_pixel_height(264)) + "$")
 
