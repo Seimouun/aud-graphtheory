@@ -189,7 +189,7 @@ def getpixeldate():
         finalDate = date_1
         arrayDeltaDays.insert(i, delta)
 
-    counterX = 102
+    counterX = (graph_start_x_left + 1)
     newX = 0
     perDay = 0
     counter = 0
@@ -209,7 +209,6 @@ def getpixeldate():
             arrayDatesNPixel_res.insert(counter, [round(newX), date_1])
             counter += 1
         counterX = xCord
-
 
 # Just Call if getpixeldate was already called
 def getDateForPixel(input: float) -> datetime:
