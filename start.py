@@ -141,8 +141,10 @@ def iterate_pixel_money():
     print('gr_height: ' + str(graph_height))
     print('gr_start_x: ' + str(graph_start_x_left))
     print('gr_start_y: ' + str(graph_start_y_bottom))
-    start_value, start_height, pixel_height = gen_pixel_height(graph_start_y_bottom - graph_height,
-                                                               graph_start_y_bottom)
+
+
+    start_value, start_height, pixel_height = gen_pixel_height(graph_start_y_bottom - graph_height, graph_start_y_bottom)
+
 
     # print(pixel_height)
 
