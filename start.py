@@ -18,6 +18,7 @@ graph_start_y_bottom = 94
 graph_height = 554
 graph_width = 1149
 
+arrayDatesNPixel_res = []
 pixel_money = []
 
 def is_line(pixel_color):
@@ -159,7 +160,7 @@ iterate_pixel_money()
 print("264:" + str(get_cash_mula_for_pixel_height(264)) + "$")
 
 
-def getpixeldate(input: float) -> datetime:
+def getpixeldate():
     x, y = (graph_start_x_left + 1), (graph_start_y_bottom + 1)
     found = True
     B, G, R = 255, 255, 255
@@ -210,6 +211,8 @@ def getpixeldate(input: float) -> datetime:
         counterX = xCord
 
 
+# Just Call if getpixeldate was already called
+def getDateForPixel(input: float) -> datetime:
     for i in range(0, len(arrayDatesNPixel_res)):
         (cord, datum) = arrayDatesNPixel_res[i]
         if input == cord:
@@ -218,7 +221,6 @@ def getpixeldate(input: float) -> datetime:
 
 def toCsv(num1, num2):
     data = [num1, num2]
-    
 
     with open('data.csv', 'a', encoding='UTF8', newline="") as f:
         writer = csv.writer(f, delimiter=";")
