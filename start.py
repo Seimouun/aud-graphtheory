@@ -8,15 +8,17 @@ import array as arr
 from datetime import datetime as dt
 from dateutil.relativedelta import relativedelta
 
-os.remove("data.csv")
-image = cv2.imread("chart1.png")
+if(os.path.exists("data.csv")):
+    os.remove("data.csv")
+
+image = cv2.imread("images/chart1.png")
 image_height = image.shape[0]
 image_width = image.shape[1]
 
-graph_start_x_left = 101
-graph_start_y_bottom = 94
-graph_height = 554
-graph_width = 1149
+graph_start_x_left = -1
+graph_start_y_bottom = -1
+graph_height = -1
+graph_width = -1
 
 pixel_money = []
 
@@ -59,7 +61,7 @@ def set_graph_dimensions():
             
             graph_start_y_bottom = y
             break
-    size_x_temp = 0
+    size_x_temp = -1
     for x in range(graph_start_x_left, image_width):
         if image[graph_start_y_bottom,x][2] < 210:
             size_x_temp += 1
@@ -67,7 +69,7 @@ def set_graph_dimensions():
             break
     
     graph_width = size_x_temp
-    size_y_temp = 0
+    size_y_temp = -1
     for y in range(0, graph_start_y_bottom):
         actual_y = graph_start_y_bottom - y
         if image[actual_y,graph_start_x_left][2] < 210:
@@ -160,7 +162,7 @@ print("264:" + str(get_cash_mula_for_pixel_height(264)) + "$")
 
 
 def getpixeldate(input: float) -> datetime:
-    x, y = (graph_start_x_left + 1), (graph_start_y_bottom + graph_height + 1)
+    x, y = (graph_start_x_left + 1), graph_start_y_bottom + 1
     found = True
     B, G, R = 255, 255, 255
 
@@ -172,7 +174,7 @@ def getpixeldate(input: float) -> datetime:
     finalDate = dt(2017, 12, 31)
 
     while found:
-        if x >= graph_width:
+        if x > graph_width:
             break
         b, g, r = (image[y][x])
         if [b, g, r] != [B, G, R]:
@@ -227,13 +229,14 @@ def toCsv(num1, num2):
         
 def find_blue_pixels():
     x_start, x_end = graph_start_x_left, graph_width + graph_start_x_left
-    y_start, y_end = graph_start_y_bottom, graph_height + graph_start_y_bottom
+    y_start, y_end = graph_start_y_bottom - graph_height, graph_start_y_bottom
     B_Min, G_Min, R_Min = 200, 100, 50
     B_Max, G_Max, R_Max = 210, 110, 60
     image_for_blues = image.copy()
     
     for x in range(x_start, x_end):
-        for y in range(y_start, y_end):
+        for y_temp in range(y_start, y_end):
+            y = y_end - y_temp
             #declare pixels of potential data-point
             b, g, r = image_for_blues[y][x]
             b1, g1, r1 = image_for_blues[y - 1][x + 1]
