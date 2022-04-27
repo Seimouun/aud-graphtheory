@@ -49,6 +49,15 @@ def is_graph_line_vertical(y, x):
     return True
 
 
+
+
+
+
+
+
+
+#Julian Thanner
+
 def set_graph_dimensions():
     global graph_height
     global graph_width
@@ -85,6 +94,14 @@ def set_graph_dimensions():
 
     graph_height = size_y_temp
 
+
+
+
+
+
+
+
+#Simon Reitmann
 
 # checks if a line has a number and how much 0's the given number has
 def get_zeros(width, height):
@@ -168,6 +185,15 @@ def get_cash_mula_for_pixel_height(hight_key):
     return round(pixel_money[hight_key], 2)
 
 
+
+
+
+
+
+
+
+##Lucas Kronlachner
+
 def getpixeldate():
     x, y = (graph_start_x_left + 1), (graph_start_y_bottom + 1)
     found = True
@@ -219,9 +245,9 @@ def getpixeldate():
         for i2 in range(0, abs(delta.days)):
             perDay = (counterX / abs(delta.days))
             newX = newX + perDay
-            date_1 += relativedelta(days=1)
-            arrayDatesNPixel_res.insert(counter, [int(newX), date_1])
-            counter += 1
+            #date_1 += relativedelta(days=1)
+            #arrayDatesNPixel_res.insert(counter, [int(newX), date_1])
+            #counter += 1
             date_1 += relativedelta(days=1)
             arrayDatesNPixel_res.insert(counter, [round(newX), date_1])
             counter += 1
@@ -243,6 +269,13 @@ def getDateForPixel(input: float) -> datetime:
             return datum
 
 
+
+
+
+
+
+##Julian Thanner
+
 def toCsv(num1, num2):
     data = [num1, num2]
 
@@ -251,6 +284,15 @@ def toCsv(num1, num2):
         writer.writerow(data)
         f.close()
 
+
+
+
+
+
+
+
+
+##Elias Ruttinger & Rafael Peterstorfer
 
 def find_blue_pixels():
     x_start, x_end = graph_start_x_left, graph_width + graph_start_x_left
