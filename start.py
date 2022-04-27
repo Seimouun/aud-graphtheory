@@ -329,7 +329,8 @@ def find_blue_pixels():
                     print("!!!   missing date (ignoring): x-" + str(x))
                 else:
                     if(prev_x == x):
-                        prev_pixel_time += relativedelta(hours=prev_x_same_amount)
+                        if(prev_pixel_time is not None):
+                            prev_pixel_time += relativedelta(hours=prev_x_same_amount)
                         prev_x_same_amount += 1
                     else:
                         prev_x_same_amount = 1
