@@ -13,6 +13,7 @@ if (os.path.exists("data.csv")):
     os.remove("data.csv")
 
 image = cv2.imread("images/chart1.png")
+print(image)
 image_height = image.shape[0]
 image_width = image.shape[1]
 
@@ -182,7 +183,7 @@ def getpixeldate():
     arrayXs.append(x)
 
     while found:
-        if x > graph_width:
+        if x > graph_width + graph_start_x_left:
             arrayXs.append(graph_start_x_left + graph_width)
             startDate += relativedelta(months=3)
             arrayDatesNPixel.append([x, startDate])
@@ -239,7 +240,7 @@ def getDateForPixel(input: float) -> datetime:
     for i in range(0, len(arrayDatesNPixel_res)):
         (cord, datum) = arrayDatesNPixel_res[i]
         if input == cord:
-            return datum.strftime("%d.%m.%Y, %H:%M")
+            return datum
 
 
 def toCsv(num1, num2):
@@ -257,6 +258,9 @@ def find_blue_pixels():
     B_Min, G_Min, R_Min = 200, 100, 50
     B_Max, G_Max, R_Max = 210, 110, 60
     image_for_blues = image.copy()
+
+    prev_x = -1
+    prev_x_same_amount = 1
 
     for x in range(x_start, x_end):
         for y_temp in range(y_start, y_end):
@@ -278,10 +282,19 @@ def find_blue_pixels():
                 # get_cash_mula_for_pixel_height() goes from bottom up with the lowest value being at index 0
                 # find_blue_pixels() starts from the top, so subtract y
                 pixel_date = getDateForPixel(x + 1)
+                prev_pixel_time = getDateForPixel(prev_x)
                 if (pixel_date is None):
                     print("!!!   missing date (ignoring): x-" + str(x))
                 else:
-                    toCsv(pixel_date, get_cash_mula_for_pixel_height(y_end - y))
+                    if(prev_x == x):
+                        prev_pixel_time += relativedelta(hours=2 * prev_x_same_amount)
+                        prev_x_same_amount += 1
+                    else:
+                        prev_x_same_amount = 1
+                    #if(prev_pixel_time is None):
+                        #prev_pixel_time = dt.now()
+                    toCsv(pixel_date.strftime("%d.%m.%Y") + ", " + (prev_pixel_time.strftime("%H:%M") if prev_pixel_time is not None else "00:00"), get_cash_mula_for_pixel_height(y_end - y))
+                    prev_x = x
 
                 # color the used pixels of a data-point white since they've already been handled
                 image_for_blues[y][x] = [255, 255, 255]
@@ -292,4 +305,6 @@ def find_blue_pixels():
 
 
 # Test Methoden-Aufruf
+print("starting")
 find_blue_pixels()
+print("finished")
