@@ -1,6 +1,7 @@
 import datetime
 import math
 import csv
+from re import I
 from xmlrpc.client import DateTime
 
 import cv2
@@ -188,7 +189,38 @@ def get_cash_mula_for_pixel_height(hight_key):
 
 
 
+def get_pixel_date_new():
+    image[graph_start_y_bottom + 1, graph_start_x_left + graph_width] = [192, 192, 192]
+    found = True
+    start = graph_start_x_left
+    end = graph_start_x_left + graph_width
+    print(start)
+    start_date = dt(2017, 12, 1)
+    while (found):
+        found = False
+        end_date = start_date + relativedelta(months=3)
+        days_delta = (end_date-start_date).days
+        pix_to_line = 0
+        
+        if(start < end - 1):
+            for x in range(start, end):
+                if(pix_to_line > 0 and is_line(image[graph_start_y_bottom + 1, x][2]) or x == end - 1):
+                    found = True
+                    start += pix_to_line
+                    break
+                else:
+                    pix_to_line += 1
+        
+        if(found):
+            print("from - to", start - pix_to_line, start)
+            for i in range(start - pix_to_line, start):
+                pix_value = pix_to_line/days_delta
+                start_date += relativedelta(days=pix_value)
+                arrayDatesNPixel_res.append([int(i), start_date])
 
+
+
+            
 
 
 
@@ -230,17 +262,16 @@ def getpixeldate():
     counterX = 0
     newX = 0
     perDay = 0
-    counter = 0
+    counter = arrayXs[1]
 
-    print(arrayDeltaDays)
     print(arrayXs)
-    print(arrayDatesNPixel)
-
-    for i in range(0, len(arrayDeltaDays) - 1):
+    counterX = arrayXs[1]
+    for i in range(1, len(arrayDeltaDays) - 1):
         delta = arrayDeltaDays[i]
         xCord = arrayXs[i + 1]
+        newX = counterX
         counterX = xCord - counterX
-        newX = xCord
+        print(counter)
         (dummy, date_1) = arrayDatesNPixel[i]
         for i2 in range(0, abs(delta.days)):
             perDay = (counterX / abs(delta.days))
@@ -249,14 +280,16 @@ def getpixeldate():
             #arrayDatesNPixel_res.insert(counter, [int(newX), date_1])
             #counter += 1
             date_1 += relativedelta(days=1)
-            arrayDatesNPixel_res.insert(counter, [round(newX), date_1])
+            arrayDatesNPixel_res.insert(counter, [int(newX), date_1])
+            #if(counter < 500):
+            #print(counter)
             counter += 1
+        #print(xCord)
         counterX = xCord
 
 
 iterate_pixel_money()
-getpixeldate()
-print(arrayDatesNPixel_res)
+get_pixel_date_new()
 
 print("264:" + str(get_cash_mula_for_pixel_height(264)) + "$")
 
@@ -301,7 +334,7 @@ def find_blue_pixels():
     B_Max, G_Max, R_Max = 210, 110, 60
     image_for_blues = image.copy()
 
-    prev_x = -1
+    prev_pixel_time = None
     prev_x_same_amount = 1
 
     for x in range(x_start, x_end):
@@ -324,20 +357,19 @@ def find_blue_pixels():
                 # get_cash_mula_for_pixel_height() goes from bottom up with the lowest value being at index 0
                 # find_blue_pixels() starts from the top, so subtract y
                 pixel_date = getDateForPixel(x + 1)
-                prev_pixel_time = getDateForPixel(prev_x)
+                #print("prev ",prev_pixel_time)
                 if (pixel_date is None):
                     print("!!!   missing date (ignoring): x-" + str(x))
                 else:
-                    if(prev_x == x):
-                        if(prev_pixel_time is not None):
-                            prev_pixel_time += relativedelta(hours=prev_x_same_amount)
+                    if(prev_pixel_time is not None and prev_pixel_time.date() == pixel_date.date()):
+                        #print("prevPix: ",prev_pixel_time)
+                        pixel_date += relativedelta(minutes=prev_x_same_amount)
                         prev_x_same_amount += 1
                     else:
                         prev_x_same_amount = 1
-                    #if(prev_pixel_time is None):
-                        #prev_pixel_time = dt.now()
-                    toCsv(pixel_date.strftime("%d.%m.%Y") + ", " + (prev_pixel_time.strftime("%H:%M") if prev_pixel_time is not None else "00:00"), get_cash_mula_for_pixel_height(y_end - y))
-                    prev_x = x
+                    
+                    toCsv(pixel_date.strftime("%d.%m.%Y, %H:%M"), get_cash_mula_for_pixel_height(y_end - y))
+                    prev_pixel_time = pixel_date
 
                 # color the used pixels of a data-point white since they've already been handled
                 image_for_blues[y][x] = [255, 255, 255]
