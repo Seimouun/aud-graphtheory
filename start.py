@@ -1,4 +1,5 @@
 import datetime
+from glob import glob
 import math
 import csv
 from re import I
@@ -8,13 +9,15 @@ import cv2
 import os
 import array as arr
 from datetime import datetime as dt
+from cv2 import log
 from dateutil.relativedelta import relativedelta
 
-if (os.path.exists("data.csv")):
-    os.remove("data.csv")
+csv_name = "data_chart5.csv"
 
-image = cv2.imread("images/chart1.png")
-print(image)
+if (os.path.exists(csv_name)):
+    os.remove(csv_name)
+
+image = cv2.imread("chart-default.png")
 image_height = image.shape[0]
 image_width = image.shape[1]
 
@@ -26,14 +29,54 @@ graph_width = -1
 arrayDatesNPixel_res = []
 pixel_money = []
 
+def start_program_with_chart(chart_path, chart_name):
+    print(chart_name)
+    global csv_name
+    global image
+    global image_height
+    global image_width
+    global arrayDatesNPixel_res
+    global pixel_money
+    global graph_start_x_left
+    global graph_start_y_bottom
+    global graph_height
+    global graph_width
+
+    csv_name = chart_name.replace(".png",".csv")
+
+    if (os.path.exists(csv_name)):
+        os.remove(csv_name)
+    
+    image = cv2.imread(chart_path + "/" + chart_name)
+    image_height = image.shape[0]
+    image_width = image.shape[1]
+
+    graph_start_x_left = -1
+    graph_start_y_bottom = -1
+    graph_height = -1
+    graph_width = -1
+
+    arrayDatesNPixel_res = []
+    pixel_money = []
+
+    iterate_pixel_money()
+    get_pixel_date_new()
+
+    print("264:" + str(get_cash_mula_for_pixel_height(264)) + "$")
+
+    print("starting with " + chart_path + "/" + chart_name)
+    find_blue_pixels()
+    print("finished")
+
+
+
 
 def is_line(pixel_color):
     return pixel_color < 254
 
 
 def is_graph_line_horizontal(x, y):
-    for yDown in range(0, 30):
-        # print(x)
+    for yDown in range(0, 40):
         if (y + yDown < image_height and image[y + yDown, x][2] < 210):
             continue;
         else:
@@ -42,7 +85,7 @@ def is_graph_line_horizontal(x, y):
 
 
 def is_graph_line_vertical(y, x):
-    for xRight in range(0, 30):
+    for xRight in range(0, 40):
         if (x + xRight < image_width and image[y, x + xRight][2] < 210):
             continue;
         else:
@@ -69,6 +112,7 @@ def set_graph_dimensions():
         for y in range(0, image_height):
             if (is_line(image[y, x][2]) and is_graph_line_horizontal(y, x)):
                 graph_start_x_left = x
+                image[y, x] = [255,0,0]
                 break
         else:
             continue
@@ -148,28 +192,51 @@ def gen_pixel_height(start, end):
                 # if first line already there get second one and do the math thingy
                 elif (first_value > 0):
                     zeros_diff = zeros_count - first_value
-                    print(first_value)
                     return first_value, first_value_height, zeros_diff / pixel_count
                 pixel_count = 0
         pixel_count += 1
 
+def gen_pixel_height_new(start, end):
+    print("moiga")
+    first_value = -1
+    first_value_height = -1
+
+    pixel_count = 0
+
+    pos_x = graph_start_x_left - 1
+
+    print(end - start)
+    for y in range(0, end - start):
+        print("ayo")
+        height = end - y
+        # find line
+        print(image[height, pos_x][2])
+        if (is_line(image[height, pos_x][2])):
+            print("found line")
+            zeros_count = get_zeros(pos_x, height)
+            # check if line has number & first_value not set yet
+            if (zeros_count > 0 and first_value < 0):
+                print("firtval: ", first_value)
+                first_value = zeros_count
+                first_value_height = height
+                # if first line already there get second one and do the math thingy
+            elif (first_value > 0):
+                val_diff = math.log10(math.pow(10,first_value) * 2) - first_value
+                print("valdiff:", val_diff)
+                return first_value, first_value_height, val_diff / pixel_count
+        
+        if(first_value > 0):
+            pixel_count += 1
 
 def iterate_pixel_money():
     set_graph_dimensions()
-    print('gr_width: ' + str(graph_width))
-    print('gr_height: ' + str(graph_height))
-    print('gr_start_x: ' + str(graph_start_x_left))
-    print('gr_start_y: ' + str(graph_start_y_bottom))
 
+    print(graph_start_y_bottom)
+    print(graph_height)
 
-    start_value, start_height, pixel_height = gen_pixel_height(graph_start_y_bottom - graph_height, graph_start_y_bottom)
+    # start_value, start_height, pixel_height = gen_pixel_height_new(graph_start_y_bottom - graph_height, graph_start_y_bottom)
 
-
-    # print(pixel_height)
-
-    # cv2.imshow('ImageWindow', image)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    gen_pixel_height_new(graph_start_y_bottom - graph_height, graph_start_y_bottom)
 
     for y in range(0, graph_height):
         height = graph_start_y_bottom - y
@@ -194,7 +261,6 @@ def get_pixel_date_new():
     found = True
     start = graph_start_x_left
     end = graph_start_x_left + graph_width
-    print(start)
     start_date = dt(2017, 12, 1)
     while (found):
         found = False
@@ -212,7 +278,6 @@ def get_pixel_date_new():
                     pix_to_line += 1
         
         if(found):
-            print("from - to", start - pix_to_line, start)
             for i in range(start - pix_to_line, start):
                 pix_value = pix_to_line/days_delta
                 start_date += relativedelta(days=pix_value)
@@ -264,14 +329,12 @@ def getpixeldate():
     perDay = 0
     counter = arrayXs[1]
 
-    print(arrayXs)
     counterX = arrayXs[1]
     for i in range(1, len(arrayDeltaDays) - 1):
         delta = arrayDeltaDays[i]
         xCord = arrayXs[i + 1]
         newX = counterX
         counterX = xCord - counterX
-        print(counter)
         (dummy, date_1) = arrayDatesNPixel[i]
         for i2 in range(0, abs(delta.days)):
             perDay = (counterX / abs(delta.days))
@@ -288,10 +351,7 @@ def getpixeldate():
         counterX = xCord
 
 
-iterate_pixel_money()
-get_pixel_date_new()
 
-print("264:" + str(get_cash_mula_for_pixel_height(264)) + "$")
 
 
 # Just Call if getpixeldate was already called
@@ -312,7 +372,7 @@ def getDateForPixel(input: float) -> datetime:
 def toCsv(num1, num2):
     data = [num1, num2]
 
-    with open('data.csv', 'a', encoding='UTF8', newline="") as f:
+    with open(csv_name, 'a', encoding='UTF8', newline="") as f:
         writer = csv.writer(f, delimiter=";")
         writer.writerow(data)
         f.close()
@@ -380,6 +440,11 @@ def find_blue_pixels():
 
 
 # Test Methoden-Aufruf
-print("starting")
-find_blue_pixels()
-print("finished")
+def generate_from_directory(images_dir):
+    for (dirpath, dirnames, filenames) in os.walk(images_dir):
+        for f in filenames:
+            if(".png" in f):
+                start_program_with_chart(images_dir, f)
+        break
+
+start_program_with_chart("images", "00.0-11.0-27.0-86.0-19.0-41.0-00.0-17.0-21.0-10000.0-11.0-NONE.png")
